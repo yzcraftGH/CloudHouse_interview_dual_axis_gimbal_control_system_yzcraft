@@ -41,7 +41,8 @@
     第二行    M:<MODE> K: <KEY>
     第三行, CMD : 上一次接收到的cmd
     第四行 MODE1 : YAW PITCH MODE2 : 姿态板
-    MODE3: 四路光敏电阻值
+    MODE3: 四路光敏电阻读数和对准状况以便调试
+
 
 
 
