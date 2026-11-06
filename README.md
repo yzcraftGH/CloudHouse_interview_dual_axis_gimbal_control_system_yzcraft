@@ -3,11 +3,11 @@
 ## 核心模式及功能
 ### 串口通信
 机器接收并回复以下指令:(大小写不敏感) 
-####  AT -> OK
-####  STATUS -> OK MODE=<n>
-####  YAW <param>
-####  PITCH <param>
-####  错误的指令 -> ERR
+    AT -> OK
+    STATUS -> OK MODE=<n>
+    YAW <param> -> OK
+    PITCH <param> -> OK
+错误的指令 -> ERR
 ### LED
 ####  LED1:
     上电自检循环闪烁,稳定后常亮,
