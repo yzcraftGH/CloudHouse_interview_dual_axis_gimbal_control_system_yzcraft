@@ -42,7 +42,17 @@
     第三行, CMD : 上一次接收到的cmd
     第四行 MODE1 : YAW PITCH MODE2 : 姿态板
     MODE3: 四路光敏电阻读数和对准状况以便调试
-
+### 文件目录
+    主要源码在:Users/ 下
+    分层为
+    Dev1ce/
+    Bsp/
+    Logic/
+    App/
+    Ultils/
+    接口定义在.h中,注释齐全
+    自行根据需要查阅,调用
+    
 
 
 
