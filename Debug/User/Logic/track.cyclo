@@ -1,0 +1,6 @@
+../User/Logic/track.c:82:6:logic_track_init	2
+../User/Logic/track.c:100:6:logic_track_reset	2
+../User/Logic/track.c:117:6:logic_track_task	16
+../User/Logic/track.c:218:15:logic_track_get_state	1
+../User/Logic/track.c:223:6:logic_track_get_level	3
+../User/Logic/track.c:238:13:track_step_gimbal_axis	6

@@ -1,0 +1,5 @@
+../User/App/app_mode.c:24:6:app_mode_init	4	static
+../User/App/app_mode.c:30:6:app_mode_set	16	static
+../User/App/app_mode.c:49:12:app_mode_get	4	static
+../User/App/app_mode.c:54:12:app_mode_next	16	static
+../User/App/app_mode.c:69:12:app_mode_prev	16	static

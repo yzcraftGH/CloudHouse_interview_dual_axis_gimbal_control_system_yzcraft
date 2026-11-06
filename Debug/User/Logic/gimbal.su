@@ -1,0 +1,6 @@
+../User/Logic/gimbal.c:44:6:logic_gimbal_init	8	static
+../User/Logic/gimbal.c:56:6:logic_gimbal_set_angle	16	static
+../User/Logic/gimbal.c:71:6:logic_gimbal_center	8	static
+../User/Logic/gimbal.c:77:9:logic_gimbal_get_target_angle	16	static
+../User/Logic/gimbal.c:88:6:logic_gimbal_task	48	static
+../User/Logic/gimbal.c:142:25:gimbal_logic_to_dev	16	static

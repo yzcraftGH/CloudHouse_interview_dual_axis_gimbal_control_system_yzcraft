@@ -1,0 +1,9 @@
+../User/Logic/attitude.c:51:6:logic_attitude_init	3
+../User/Logic/attitude.c:79:6:logic_attitude_task	4
+../User/Logic/attitude.c:120:9:logic_attitude_calibrate	3
+../User/Logic/attitude.c:130:7:logic_attitude_get_pitch	1
+../User/Logic/attitude.c:135:7:logic_attitude_get_roll	1
+../User/Logic/attitude.c:141:7:logic_attitude_get_pitch_rate	1
+../User/Logic/attitude.c:146:7:logic_attitude_get_roll_rate	1
+../User/Logic/attitude.c:151:9:logic_attitude_is_ok	1
+../User/Logic/attitude.c:157:6:logic_attitude_reset	1

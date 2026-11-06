@@ -1,0 +1,5 @@
+../User/App/app_mode.c:24:6:app_mode_init	1
+../User/App/app_mode.c:30:6:app_mode_set	6
+../User/App/app_mode.c:49:12:app_mode_get	1
+../User/App/app_mode.c:54:12:app_mode_next	5
+../User/App/app_mode.c:69:12:app_mode_prev	5
