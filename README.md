@@ -1,14 +1,14 @@
 # CloudHouse_interview_dual_axis_gimbal_control_system_yzcraft
 这是一个简易双轴云台控制系统,为大云屋-众创空间三轮面试考核题
 ## 核心模式及功能
-** 01 MODE 1 : CMD ** 
+### **01 MODE 1 : CMD** 
   指令控制
   接收串口YAW / PITCH指令 参数[0,180]
   对应横滚轴 / 俯仰轴转动到相应角度
-** 02 MODE 2 : FOLLOW **
+### **02 MODE 2 : FOLLOW**
   姿态随动
   使舵机跟随MPU6050姿态板转动
-** 03 MODE 3 : TRACK **
+### **03 MODE 3 : TRACK**
   自动追光
   自动锁定舵机头部视角内的一定距离的光源 容差 2%
   ** 注意: **
