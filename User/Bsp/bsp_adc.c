@@ -36,6 +36,7 @@ uint8_t bsp_adc_init(void)
 	return 0;
 }
 
+
 void bsp_adc_read(uint16_t *buf)
 {
 	if (buf == 0) {return ;}
