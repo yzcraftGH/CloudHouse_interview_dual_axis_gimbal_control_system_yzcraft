@@ -20,25 +20,23 @@
 /** 滑动平均窗口长度:8 刻 x 10ms = 80ms 平滑 */
 #define TRACK_FILTER_WINDOW        8U
 
-/** 相对容差比例:两方向差异小于"环境亮度总量"的 x% 即认为已正对 */
-#define TRACK_TOLERANCE_RATIO      0.02f	/* 手机手电筒 0.01-0.02f 30CM正常运行 */
-											/* 小卖部没手电筒,暂时测不出来 */
+/** 遮光时单路读数,此处取4090 */
+#define TRACK_ADC_DARK_REF		   4090.0f
 
-/** 环境亮度总量上限:高于此值视为完全无光(12 位 ADC,四路满值约 16380) */
-#define TRACK_TOTAL_LEVEL_MAX      16000.0f
+/** 单路贴地阈值,低于此值不信任数据*/
+#define TRACK_ADC_FLOOR			   100.0f
 
-/** 每个周期单轴最大转角(度)的封顶值:1.5度 / 10ms = 150度/s
- *  只有信号很强(离得远,读数大)时才会用到;近距离的实际步长按下面的标定缩小. */
+/** 无光判据 低于此值认定无光 */
+#define TRACK_NOLIGHT_LIMIT		   600.0f
+
+/** 步长放大系数 */
+#define TRACK_GAIN_DEG_PER_E	   20.0f
+
+/** 对准阈值 */
+#define TRACK_E_ALIGN              0.02f
+
+/** 步长封顶值 */
 #define TRACK_STEP_LIMIT_DEG       1.5f
-
-/** 步长标定:
- *  总量等于 TRACK_STEP_REF_LEVEL 时,步长取 TRACK_STEP_REF_DEG
- *  实测:该总量下固定 0.3-0.4度 能稳定收敛,固定 0.5度 就会来回摆
- *  步长按总量线性放大(远处读数大,容差带在角度上也更宽),最大 TRACK_STEP_LIMIT_DEG
- *  注意 level_sum 是四路原始读数之和,不是 OLED 上除以 42 的显示值:
- *  显示 20~30 对应原始 840~1260,四路合计约 4200 */
-#define TRACK_STEP_REF_LEVEL       4200.0f
-#define TRACK_STEP_REF_DEG         0.4f
 
 /** 连续多少刻落在容差内才认定为"已正对":15 刻 x 10ms = 150ms */
 #define TRACK_ALIGN_CONFIRM_TICKS  15U
@@ -134,7 +132,8 @@ void logic_track_task(void)
 	float level_up = ((float)track_level[TRACK_INDEX_LT] + (float)track_level[TRACK_INDEX_RT])*0.5f;
 	float level_down = ((float)track_level[TRACK_INDEX_LB] + (float)track_level[TRACK_INDEX_RB])*0.5f;
 
-	float level_sum = level_left + level_right + level_up + level_down;
+	float level_sum_lr = 2*TRACK_ADC_DARK_REF - (level_left + level_right);
+	float level_sum_ud = 2*TRACK_ADC_DARK_REF - (level_down + level_up);
 
 	float left_right_diff = level_left - level_right;
 	float up_down_diff = level_up - level_down;
@@ -143,21 +142,31 @@ void logic_track_task(void)
 	track_up_down_diff =  up_down_diff;
 
 	/* 无光保护 */
-	if(level_sum > TRACK_TOTAL_LEVEL_MAX)
+	if(level_sum_lr < TRACK_NOLIGHT_LIMIT || level_sum_ud < TRACK_NOLIGHT_LIMIT)
 	{
 		track_state = TRACK_STATE_NO_LIGHT;
 		track_align_ticks = 0;
 		return ;
 	}
 
-	/* 相对容差判断是否已经正对 */
-	float diff_allowed = level_sum * TRACK_TOLERANCE_RATIO;
+	/* 防削顶,任意一路贴地,本tick无动作 */
+	/* 过曝保护:某一侧两路同时贴地,该侧已无方向信息,本拍不动作
+	 * 取同侧"较暗"(较不易饱和)的那一路,若它都贴地,说明整侧已饱和 */
+	if (fmaxf((float)track_level[TRACK_INDEX_LT], (float)track_level[TRACK_INDEX_LB]) < TRACK_ADC_FLOOR ||
+	    fmaxf((float)track_level[TRACK_INDEX_RT], (float)track_level[TRACK_INDEX_RB]) < TRACK_ADC_FLOOR ||
+	    fmaxf((float)track_level[TRACK_INDEX_LT], (float)track_level[TRACK_INDEX_RT]) < TRACK_ADC_FLOOR ||
+	    fmaxf((float)track_level[TRACK_INDEX_LB], (float)track_level[TRACK_INDEX_RB]) < TRACK_ADC_FLOOR)
+	{
+		track_align_ticks = 0;
+		return ;
+	}
 
-	float left_right_gap = fabsf(track_left_right_diff);
-	float up_down_gap = fabsf(track_up_down_diff);
+	/* 归一化偏差 */
+	float e_yaw = left_right_diff / level_sum_lr ;
+	float e_pitch = up_down_diff / level_sum_ud ;
 
 	/* 防止gap在对准的边缘来回横跳 */
-	if(left_right_gap <= diff_allowed && up_down_gap <= diff_allowed)
+	if( fabsf(e_yaw) <= TRACK_E_ALIGN && fabsf(e_pitch) <= TRACK_E_ALIGN )
 	{
 		/* 必须连续TRACK_ALIGN_CONFIRM_TICKS刻落在容差内才能认定已对正 */
 		if(track_align_ticks < TRACK_ALIGN_CONFIRM_TICKS)
@@ -173,7 +182,7 @@ void logic_track_task(void)
 	if (track_align_ticks > 0)
 	{
 		/* 系数选择2.0,标记有明显的偏差,则将 track_align_ticks 回扣至0 */
-		if(left_right_gap > diff_allowed*2.0f  || up_down_gap > diff_allowed*2.0f)
+		if( fabsf(e_yaw) > TRACK_E_ALIGN*2.0f  || fabsf(e_pitch) > TRACK_E_ALIGN*2.0f)
 		{
 			track_align_ticks = 0;
 		}
@@ -191,26 +200,16 @@ void logic_track_task(void)
 
 	track_state = TRACK_STATE_SEEKING;
 
-	/* 调试时认为追光代码的重头戏在这里 */
-	/* 这波贪了应该留到春晚改的 */
-
-	/* 步长按总量标定 近距离小步,远距离大步
-	 * 近处读数小,容差带在角度上很窄(约 1 度),必须用小步
-	 * 远处读数大,带子在角度上很宽,用大步,保持 150 度每秒的接近速度.
-	 * 这是为了防止灯光靠近时乱抖动
-	 **/
-	float step_mag = TRACK_STEP_REF_DEG * (level_sum / TRACK_STEP_REF_LEVEL);
-
-	if (left_right_gap > diff_allowed)
+	if (fabsf(e_yaw) > TRACK_E_ALIGN)
 	{
 		track_step_gimbal_axis(LOGIC_GIMBAL_YAW, &track_target_yaw_deg,
-				TRACK_YAW_DIRECTION * ((left_right_diff > 0.0f) ? step_mag : -step_mag), /* 符号选择 */
+				TRACK_YAW_DIRECTION * (TRACK_GAIN_DEG_PER_E * e_yaw), 
 				TRACK_STEP_LIMIT_DEG);
 	}
-	if (up_down_gap > diff_allowed)
+	if (fabsf(e_pitch) > TRACK_E_ALIGN)
 	{
 		track_step_gimbal_axis(LOGIC_GIMBAL_PITCH, &track_target_pitch_deg,
-				TRACK_PITCH_DIRECTION * ((up_down_diff > 0.0f) ? step_mag : -step_mag),
+				TRACK_PITCH_DIRECTION * (TRACK_GAIN_DEG_PER_E * e_pitch),
 				TRACK_STEP_LIMIT_DEG);
 	}
 }
