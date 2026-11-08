@@ -1,0 +1,31 @@
+.env
+node_modules/
+
+# CMake build output
+build/
+
+# CubeIDE generated folders / intermediate artifacts
+Debug/
+Release/
+
+# Compiler artifacts
+*.elf
+*.hex
+*.bin
+*.map
+*.su
+*.cyclo
+*.o
+*.d
+
+# Converter metadata (contains local absolute paths)
+stm32cubeide-export.json
+
+# ST extension caches
+.settings/*.store.json
+
+# clangd compile database (auto-generated at project root by build task)
+compile_commands.json
+
+# Backups
+*.bak
