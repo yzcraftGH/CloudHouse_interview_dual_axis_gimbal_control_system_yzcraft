@@ -1,8 +1,3 @@
 CompileFlags:
-  # 使用 CMake 生成的编译数据库（先构建一次生成 build/Debug/compile_commands.json）
+  # compile_commands.json 由全局构建任务复制到工程根目录；此处仅作兜底
   CompilationDatabase: build/Debug
-  # 去掉 clangd 不认识的 GCC 专属参数，避免误报
-  Remove:
-    - -fcyclomatic-complexity
-    - -fstack-usage
-    - -Wl,--gc-sections

@@ -1,14 +1,14 @@
 .env
 node_modules/
 
-# CMake 构建输出
+# CMake build output
 build/
 
-# CubeIDE 生成目录与中间产物
+# CubeIDE generated folders / intermediate artifacts
 Debug/
 Release/
 
-# 编译产物
+# Compiler artifacts
 *.elf
 *.hex
 *.bin
@@ -18,11 +18,14 @@ Release/
 *.o
 *.d
 
-# 转换器导出的元数据（含本机绝对路径，不应入库）
+# Converter metadata (contains local absolute paths)
 stm32cubeide-export.json
 
-# ST 扩展缓存
+# ST extension caches
 .settings/*.store.json
 
-# 备份
+# clangd compile database (auto-generated at project root by build task)
+compile_commands.json
+
+# Backups
 *.bak
