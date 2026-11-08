@@ -16,6 +16,10 @@
 #include "filter.h"
 /* Private define ------------------------------------------------------------*/
 
+/** 随动目标角的安全区间,超出即冻结 */
+#define GIMBAL_TARGET_MIN          5.0f
+#define GIMBAL_TARGET_MAX          175.0f
+
 /** 前馈系数:角速度 -> 目标角提前量,单位 秒.先试 0.06,范围 0.03~0.12 */
 #define GIMBAL_FEEDFORWARD_GAIN   0.06f
 
@@ -117,6 +121,12 @@ void logic_gimbal_task(void)
 	 * 前馈项:用角速度预测目标位置,抵消互补滤波和舵机的滞后,做出"跟手"的手感 */
 	float pitch_target_f = 90.0f + pitch + GIMBAL_FEEDFORWARD_GAIN * pitch_rate;
 	float yaw_target_f   = 90.0f - roll  - GIMBAL_FEEDFORWARD_GAIN * roll_rate;
+
+	/* 奇异点保护:横滚超过 +-85 度时冻结 */
+	if (yaw_target_f < GIMBAL_TARGET_MIN || yaw_target_f > GIMBAL_TARGET_MAX)
+	{
+		return ;
+	}
 
 	/*
 	 * 轻量一阶低通:
