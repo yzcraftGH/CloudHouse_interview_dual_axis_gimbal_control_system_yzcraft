@@ -1,0 +1,28 @@
+.env
+node_modules/
+
+# CMake 构建输出
+build/
+
+# CubeIDE 生成目录与中间产物
+Debug/
+Release/
+
+# 编译产物
+*.elf
+*.hex
+*.bin
+*.map
+*.su
+*.cyclo
+*.o
+*.d
+
+# 转换器导出的元数据（含本机绝对路径，不应入库）
+stm32cubeide-export.json
+
+# ST 扩展缓存
+.settings/*.store.json
+
+# 备份
+*.bak
