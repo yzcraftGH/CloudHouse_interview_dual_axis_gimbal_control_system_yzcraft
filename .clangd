@@ -1,2 +1,3 @@
 CompileFlags:
+  # compile_commands.json 由全局构建任务复制到工程根目录；此处仅作兜底
   CompilationDatabase: build/Debug
