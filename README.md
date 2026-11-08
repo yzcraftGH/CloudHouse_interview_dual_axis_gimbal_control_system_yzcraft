@@ -56,3 +56,34 @@
     整机可PCB打载板或主控板
     引脚分配等细项在
     /User/README.txt下    /User/README.txt下
+## 开发环境
+
+本项目使用 CMake 构建，推荐 Visual Studio Code + clangd。
+
+依赖（安装任一即可）：
+
+- STM32CubeCLT
+- STM32CubeIDE（首次启动后会在 %LOCALAPPDATA%\STM32Cube\bundles 部署 Cube bundles）
+
+命令行构建：
+
+    cmake --preset Debug
+    cmake --build --preset Debug
+
+产物位于 build/Debug/dual-axis_gimbal_control_system.elf。
+
+VSCode 中可直接使用全局任务：
+
+    Ctrl+Shift+B                     编译
+    Tasks: Run Task -> STM32: Build + Flash   编译并下载到开发板
+
+代码跳转（F12）由 clangd 提供，读取 build/Debug/compile_commands.json，首次使用前需先编译一次。
+
+## 提交约定
+
+- build/、Debug/、*.elf / *.hex / *.bin / *.map 等构建产物不提交，已在 .gitignore 中忽略
+- 建议启用提交钩子，自动拦截误提交的构建产物：
+
+      git config core.hooksPath .githooks
+
+  启用后，任何包含 build/ 或编译产物的提交都会被拒绝，并列出具体文件。

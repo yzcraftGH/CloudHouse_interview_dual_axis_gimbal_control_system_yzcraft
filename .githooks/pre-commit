@@ -1,0 +1,22 @@
+#!/bin/sh
+# Reject commits that contain build artifacts or machine-specific files.
+# Enable once per clone:  git config core.hooksPath .githooks
+
+bad=$(git diff --cached --name-only --diff-filter=ACMR | grep -Ei \
+  -e '^(build|Debug|Release)/' \
+  -e '\.(obj|o|elf|hex|bin|map|su|cyclo|d)$' \
+  -e '^stm32cubeide-export\.json$' \
+  -e '^\.settings/.*\.store\.json$' \
+  -e '^compile_commands\.json$')
+
+if [ -n "$bad" ]; then
+  echo "" >&2
+  echo "  [pre-commit] commit rejected: build artifacts / machine-specific files" >&2
+  echo "$bad" | sed 's/^/      - /' >&2
+  echo "" >&2
+  echo "  unstage them with:  git reset HEAD -- <path>" >&2
+  echo "" >&2
+  exit 1
+fi
+
+exit 0
